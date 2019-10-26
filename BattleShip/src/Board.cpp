@@ -33,48 +33,13 @@ void Board::Draw()
 // TODO Lots of code repetition here. Extract some of it to seperate functions and see if you can get rid of some of the repeating code!
 void Board::PlaceShips()
 {
-
-	std::unordered_map<char, int> coords{ {'A', 0}, {'B', 1}, {'C', 2}, {'D', 3}, {'E', 4}, {'F', 5}, {'G', 6}, {'H', 7}, {'I', 8}, {'J', 9} };
 	for (int i = 0; i < player.Ships.size(); ++i)
 	{
-		int x{};
-		char y{};
 		bool locationVerified{ false };
 
 		while (locationVerified == false)
 		{
-			system("cls");
-			Draw();
-
-			std::cout << "Enter the coordinates of your " << player.Ships.at(i).GetType() << "(Size: " << player.Ships.at(i).GetLength() << ")" << ". Example(\"H5\")" << std::endl;
-			std::cin >> y >> x;
-
-			player.Ships.at(i).location.x = x - 1;
-			player.Ships.at(i).location.y = coords[y];
-
-			char selection{};
-			std::cout << "Would you like to place your ship \n1. Horizontally \n2. Vertically \n3. Diagonal(top left to bottom right) \n4. Diagonal(top right to bottom left)\n";
-			std::cin >> selection;
-
-			switch (selection)
-			{
-			case '1':
-				player.Ships.at(i).orientation = Ship::Orientation::Horizontal;
-				break;
-			case '2':
-				player.Ships.at(i).orientation = Ship::Orientation::Vertical;
-				break;
-			case '3':
-				player.Ships.at(i).orientation = Ship::Orientation::DiagonalLeft;
-				break;
-			case '4':
-				player.Ships.at(i).orientation = Ship::Orientation::DiagonalRight;
-				break;
-			default:
-				std::cout << "Invalid input!" << std::endl;
-			}
-
-			std::cin.ignore();
+			InputShipCoordinates(player.Ships.at(i));
 
 			for (int j = 1; j < player.Ships.at(i).GetLength(); ++j)
 			{
@@ -175,7 +140,7 @@ void Board::PlaceShips()
 				std::cout << "Place your ship here?(Y/N)";
 				std::cin >> input;
 
-				if (input == 'N')
+				if (input == 'N' ||input == 'n')
 				{
 					for (int j = 1; j < player.Ships.at(i).GetLength(); ++j)
 					{
@@ -200,7 +165,7 @@ void Board::PlaceShips()
 					}
 					locationVerified = false;
 				}
-				else if (input == 'Y')
+				else if (input == 'Y' || input == 'y')
 				{
 					locationVerified = true;
 				}
@@ -208,4 +173,105 @@ void Board::PlaceShips()
 
 		}
 	}
+}
+
+void Board::InputShipCoordinates(Ship& ship)
+{
+	std::unordered_map<char, int> coords{ {'A', 0}, {'B', 1}, {'C', 2}, {'D', 3}, {'E', 4}, {'F', 5}, {'G', 6}, {'H', 7}, {'I', 8}, {'J', 9} };
+	int x{};
+	char y{};
+	bool isValidLocation{ false };
+
+	while (isValidLocation == false)
+	{
+		system("cls");
+		Draw();
+
+		std::cout << "Enter the coordinates of your " << ship.GetType() << "(Size: " << ship.GetLength() << ")" << ". Example(\"H5\")" << std::endl;
+		std::cin >> y >> x;
+
+		if (x >= 1 && x <= brd.size() && y >= 'A' && y <= 'J')
+		{
+			isValidLocation = true;
+			ship.location.x = x - 1;
+			ship.location.y = coords[y];
+		}
+		else
+		{
+			std::cout << "Invalid Coordinates! Try again." << std::endl;
+			isValidLocation = false;
+		}
+
+		isValidLocation = false;
+
+		char selection{};
+		std::cout << "Would you like to place your ship \n1. Horizontally \n2. Vertically \n3. Diagonal(top left to bottom right) \n4. Diagonal(top right to bottom left)\n";
+		std::cin >> selection;
+
+		switch (selection)
+		{
+		case '1':
+			if (ship.location.y + ship.GetLength() > brd.size())
+			{
+				std::cout << "Error! Ship would go out of board bounds!\n";
+				std::cout << "Press enter to try again." << std::endl;
+				isValidLocation = false;
+				std::cin.ignore();
+				std::cin.get();
+				break;
+			}
+			ship.orientation = Ship::Orientation::Horizontal;
+			isValidLocation = true;
+			break;
+		case '2':
+			if (ship.location.x + ship.GetLength() > brd.size())
+			{
+				std::cout << "Error! Ship would go out of board bounds!\n";
+				std::cout << "Press enter to try again." << std::endl;
+				isValidLocation = false;
+				std::cin.ignore();
+				std::cin.get();
+				break;
+			}
+			ship.orientation = Ship::Orientation::Vertical;
+			isValidLocation = true;
+			break;
+		case '3':
+			if (ship.location.x + ship.GetLength() > brd.size() || ship.location.y + ship.GetLength() > brd.size())
+			{
+				std::cout << "Error! Ship would go out of board bounds!\n";
+				std::cout << "Press enter to try again." << std::endl;
+				isValidLocation = false;
+				std::cin.ignore();
+				std::cin.get();
+				break;
+			}
+			ship.orientation = Ship::Orientation::DiagonalLeft;
+			isValidLocation = true;
+			break;
+		case '4':
+			if (ship.location.x + ship.GetLength() > brd.size() || ship.location.y - ship.GetLength() < -1)
+			{
+				std::cout << "Error! Ship would go out of board bounds!\n";
+				std::cout << "Press enter to try again." << std::endl;
+				isValidLocation = false;
+				std::cin.ignore();
+				std::cin.get();
+				break;
+			}
+			ship.orientation = Ship::Orientation::DiagonalRight;
+			isValidLocation = true;
+			break;
+		default:
+			std::cout << "Invalid input!" << std::endl;
+			std::cin.ignore();
+			std::cin.get();
+			isValidLocation = false;
+		}
+	}
+}
+
+bool Board::isTileOccupied(Ship & ship)
+{
+	return false;
 }

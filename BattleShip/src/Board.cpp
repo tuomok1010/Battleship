@@ -41,68 +41,8 @@ void Board::PlaceShips()
 		{
 			InputShipCoordinates(player.Ships.at(i));
 
-			for (int j = 1; j < player.Ships.at(i).GetLength(); ++j)
-			{
-				// Check if any of the cells in the board are occupied
-				// TODO consider extracting all this logic to a separate function
-				if (player.Ships.at(i).orientation == Ship::Orientation::Horizontal)
-				{
-					if (brd[player.Ships.at(i).location.x][player.Ships.at(i).location.y] == '#' || brd[player.Ships.at(i).location.x][player.Ships.at(i).location.y + j] == '#')
-					{
-						std::cout << "Error! The coordinates are already occupied! Pick another location or try rotating the ship!" << std::endl;
-						std::cin.get();
-						//brd[player.Ships.at(i).location.x][player.Ships.at(i).location.y] = '.';
-						brd[player.Ships.at(i).location.x][player.Ships.at(i).location.y + j] = '.';
-						locationVerified = false;
-						break;
-					}
-					else
-						locationVerified = true;
-				}
-				else if (player.Ships.at(i).orientation == Ship::Orientation::Vertical)
-				{
-					if (brd[player.Ships.at(i).location.x][player.Ships.at(i).location.y] == '#' || brd[player.Ships.at(i).location.x + j][player.Ships.at(i).location.y] == '#')
-					{
-						std::cout << "Error! The coordinates are already occupied! Pick another location or try rotating the ship!" << std::endl;
-						std::cin.get();
-						//brd[player.Ships.at(i).location.x][player.Ships.at(i).location.y] = '.';
-						brd[player.Ships.at(i).location.x + j][player.Ships.at(i).location.y] = '.';
-						locationVerified = false;
-						break;
-					}
-					else
-						locationVerified = true;
-				}
-				else if (player.Ships.at(i).orientation == Ship::Orientation::DiagonalLeft)
-				{
-					if (brd[player.Ships.at(i).location.x][player.Ships.at(i).location.y] == '#' || brd[player.Ships.at(i).location.x + j][player.Ships.at(i).location.y] == '#')
-					{
-						std::cout << "Error! The coordinates are already occupied! Pick another location or try rotating the ship!" << std::endl;
-						std::cin.get();
-						//brd[player.Ships.at(i).location.x][player.Ships.at(i).location.y] = '.';
-						brd[player.Ships.at(i).location.x + j][player.Ships.at(i).location.y + j] = '.';
-						locationVerified = false;
-						break;
-					}
-					else
-						locationVerified = true;
-				}
-				else if (player.Ships.at(i).orientation == Ship::Orientation::DiagonalRight)
-				{
-					if (brd[player.Ships.at(i).location.x][player.Ships.at(i).location.y] == '#' || brd[player.Ships.at(i).location.x + j][player.Ships.at(i).location.y] == '#')
-					{
-						std::cout << "Error! The coordinates are already occupied! Pick another location or try rotating the ship!" << std::endl;
-						std::cin.get();
-						//brd[player.Ships.at(i).location.x][player.Ships.at(i).location.y] = '.';
-						brd[player.Ships.at(i).location.x + j][player.Ships.at(i).location.y - j] = '.';
-						locationVerified = false;
-						break;
-					}
-					else
-						locationVerified = true;
-				}
-			}
-
+			locationVerified = isTileOccupied(player.Ships.at(i));
+			
 			if (locationVerified == true)
 			{
 				for (int j = 1; j < player.Ships.at(i).GetLength(); ++j)
@@ -170,7 +110,6 @@ void Board::PlaceShips()
 					locationVerified = true;
 				}
 			}
-
 		}
 	}
 }
@@ -271,7 +210,71 @@ void Board::InputShipCoordinates(Ship& ship)
 	}
 }
 
-bool Board::isTileOccupied(Ship & ship)
+bool Board::isTileOccupied(Ship& ship)
 {
-	return false;
+	for (int j = 1; j < ship.GetLength(); ++j)
+	{
+		// Check if any of the cells in the board are occupied
+		// TODO consider extracting all this logic to a separate function
+		if (ship.orientation == Ship::Orientation::Horizontal)
+		{
+			if (brd[ship.location.x][ship.location.y] == '#' || brd[ship.location.x][ship.location.y + j] == '#')
+			{
+				std::cout << "Error! The coordinates are already occupied! Pick another location or try rotating the ship!" << std::endl;
+				std::cin.ignore();
+				std::cin.get();
+				brd[ship.location.x][ship.location.y + j] = '.';
+				return false;
+			}
+			else
+			{
+				return true;
+			}		
+		}
+		else if (ship.orientation == Ship::Orientation::Vertical)
+		{
+			if (brd[ship.location.x][ship.location.y] == '#' || brd[ship.location.x + j][ship.location.y] == '#')
+			{
+				std::cout << "Error! The coordinates are already occupied! Pick another location or try rotating the ship!" << std::endl;
+				std::cin.ignore();
+				std::cin.get();
+				brd[ship.location.x + j][ship.location.y] = '.';
+				return false;
+			}
+			else
+			{
+				return true;
+			}
+		}
+		else if (ship.orientation == Ship::Orientation::DiagonalLeft)
+		{
+			if (brd[ship.location.x][ship.location.y] == '#' || brd[ship.location.x + j][ship.location.y] == '#')
+			{
+				std::cout << "Error! The coordinates are already occupied! Pick another location or try rotating the ship!" << std::endl;
+				std::cin.ignore();
+				std::cin.get();
+				brd[ship.location.x + j][ship.location.y + j] = '.';
+				return false;
+			}
+			else
+			{
+				return true;
+			}
+		}
+		else if (ship.orientation == Ship::Orientation::DiagonalRight)
+		{
+			if (brd[ship.location.x][ship.location.y] == '#' || brd[ship.location.x + j][ship.location.y] == '#')
+			{
+				std::cout << "Error! The coordinates are already occupied! Pick another location or try rotating the ship!" << std::endl;
+				std::cin.ignore();
+				std::cin.get();
+				brd[ship.location.x + j][ship.location.y - j] = '.';
+				return false;
+			}
+			else
+			{
+				return true;
+			}
+		}
+	}
 }

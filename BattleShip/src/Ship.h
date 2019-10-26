@@ -14,16 +14,22 @@ public:
 	}
 
 	bool isDestroyed{ false };
-	bool isVertical{ false };
+	//bool isVertical{ false };
 
 	inline int GetLength() const { return length; }
 	inline std::string GetType() const { return type; }
 
     Location location{};
-
-private:
     int length{};
 	std::string type{};
+
+public:
+	enum class Orientation
+	{
+		Horizontal, Vertical, DiagonalLeft, DiagonalRight
+	};
+
+	Orientation orientation = Orientation::Horizontal;
 };
 
 #endif

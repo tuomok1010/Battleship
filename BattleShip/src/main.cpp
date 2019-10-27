@@ -7,7 +7,8 @@ int main()
 	Game game;
 
 	game.StartGame();
+	game.RunGame();
 
-	system("PAUSE");
+	std::cin.get();
     return 0;
 }

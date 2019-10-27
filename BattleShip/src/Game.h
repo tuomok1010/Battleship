@@ -8,6 +8,7 @@ class Game
 {
 public:
 	Game();
+	void InputPlayerInfo();
 	void StartGame();
 	void RunGame();
 
@@ -16,6 +17,9 @@ public:
 private:
     Board brdP1;
     Board brdP2;
+
+	Board player1Hits;
+	Board player2Hits;
 };
 
 #endif

@@ -1,16 +1,17 @@
 #include "Board.h"
+#include "config.h"
 #include "Ship.h"
 
 
 #include <iostream>
 
-
+const std::unordered_map<char, int> Board::coords = { {'A', 0}, {'B', 1}, {'C', 2}, {'D', 3}, {'E', 4}, {'F', 5}, {'G', 6}, {'H', 7}, {'I', 8}, {'J', 9} };
 
 Board::Board(Player& player) 
     : player(player)
 {
-	for (int i = 0; i < brd.size(); ++i)
-		for (int j = 0; j < brd.size(); ++j)
+	for (size_t i = 0; i < brd.size(); ++i)
+		for (size_t j = 0; j < brd.size(); ++j)
 			brd[i][j] = '.';
 }
 
@@ -30,10 +31,9 @@ void Board::Draw()
     }
 }
 
-// TODO Lots of code repetition here. Extract some of it to seperate functions and see if you can get rid of some of the repeating code!
 void Board::PlaceShips()
 {
-	for (int i = 0; i < player.Ships.size(); ++i)
+	for (size_t i = 0; i < player.Ships.size(); ++i)
 	{
 		bool locationVerified{ false };
 
@@ -41,74 +41,20 @@ void Board::PlaceShips()
 		{
 			InputShipCoordinates(player.Ships.at(i));
 
-			locationVerified = isTileOccupied(player.Ships.at(i));
+			locationVerified = AreTilesOccupied(player.Ships.at(i));
 			
 			if (locationVerified == true)
 			{
-				for (int j = 1; j < player.Ships.at(i).GetLength(); ++j)
-				{
-					if (player.Ships.at(i).orientation == Ship::Orientation::Vertical)
-					{
-						brd[player.Ships.at(i).location.x][player.Ships.at(i).location.y] = '#';
-						brd[player.Ships.at(i).location.x + j][player.Ships.at(i).location.y] = '#';
-					}
-					else if(player.Ships.at(i).orientation == Ship::Orientation::Horizontal)
-					{
-						brd[player.Ships.at(i).location.x][player.Ships.at(i).location.y] = '#';
-						brd[player.Ships.at(i).location.x][player.Ships.at(i).location.y + j] = '#';
-					}
-					else if (player.Ships.at(i).orientation == Ship::Orientation::DiagonalLeft)
-					{
-						brd[player.Ships.at(i).location.x][player.Ships.at(i).location.y] = '#';
-						brd[player.Ships.at(i).location.x + j][player.Ships.at(i).location.y + j] = '#';
-					}
-					else if (player.Ships.at(i).orientation == Ship::Orientation::DiagonalRight)
-					{
-						brd[player.Ships.at(i).location.x][player.Ships.at(i).location.y] = '#';
-						brd[player.Ships.at(i).location.x + j][player.Ships.at(i).location.y - j] = '#';
-					}
-				}
+				PlaceShip(player.Ships.at(i));
 					
 				std::cout << "Press enter to preview your ship's location";
 				std::cin.get();
 				std::cout << std::endl;
 
-				system("cls");
+				CLEARSCRN;
 				Draw();
 
-				char input{};
-				std::cout << "Place your ship here?(Y/N)";
-				std::cin >> input;
-
-				if (input == 'N' ||input == 'n')
-				{
-					for (int j = 1; j < player.Ships.at(i).GetLength(); ++j)
-					{
-						switch (player.Ships.at(i).orientation)
-						{
-						case Ship::Orientation::Horizontal:
-							brd[player.Ships.at(i).location.x][player.Ships.at(i).location.y] = '.';
-							brd[player.Ships.at(i).location.x][player.Ships.at(i).location.y + j] = '.';
-							break;
-						case Ship::Orientation::Vertical:
-							brd[player.Ships.at(i).location.x][player.Ships.at(i).location.y] = '.';
-							brd[player.Ships.at(i).location.x + j][player.Ships.at(i).location.y] = '.';
-							break;
-						case Ship::Orientation::DiagonalLeft:
-							brd[player.Ships.at(i).location.x][player.Ships.at(i).location.y] = '.';
-							brd[player.Ships.at(i).location.x + j][player.Ships.at(i).location.y + j] = '.';
-							break;
-						case Ship::Orientation::DiagonalRight:
-							brd[player.Ships.at(i).location.x][player.Ships.at(i).location.y] = '.';
-							brd[player.Ships.at(i).location.x + j][player.Ships.at(i).location.y - j] = '.';
-						}
-					}
-					locationVerified = false;
-				}
-				else if (input == 'Y' || input == 'y')
-				{
-					locationVerified = true;
-				}
+				locationVerified = VerifyShipPlacement(player.Ships.at(i));
 			}
 		}
 	}
@@ -116,14 +62,13 @@ void Board::PlaceShips()
 
 void Board::InputShipCoordinates(Ship& ship)
 {
-	std::unordered_map<char, int> coords{ {'A', 0}, {'B', 1}, {'C', 2}, {'D', 3}, {'E', 4}, {'F', 5}, {'G', 6}, {'H', 7}, {'I', 8}, {'J', 9} };
-	int x{};
+	unsigned int x{};
 	char y{};
 	bool isValidLocation{ false };
 
 	while (isValidLocation == false)
 	{
-		system("cls");
+		CLEARSCRN;
 		Draw();
 
 		std::cout << "Enter the coordinates of your " << ship.GetType() << "(Size: " << ship.GetLength() << ")" << ". Example(\"H5\")" << std::endl;
@@ -133,7 +78,7 @@ void Board::InputShipCoordinates(Ship& ship)
 		{
 			isValidLocation = true;
 			ship.location.x = x - 1;
-			ship.location.y = coords[y];
+			ship.location.y = coords.at(y);
 		}
 		else
 		{
@@ -189,7 +134,7 @@ void Board::InputShipCoordinates(Ship& ship)
 			isValidLocation = true;
 			break;
 		case '4':
-			if (ship.location.x + ship.GetLength() > brd.size() || ship.location.y - ship.GetLength() < -1)
+			if (ship.location.x + ship.GetLength() > brd.size() || ship.location.y - ship.GetLength() < 0)
 			{
 				std::cout << "Error! Ship would go out of board bounds!\n";
 				std::cout << "Press enter to try again." << std::endl;
@@ -210,7 +155,7 @@ void Board::InputShipCoordinates(Ship& ship)
 	}
 }
 
-bool Board::isTileOccupied(Ship& ship)
+bool Board::AreTilesOccupied(const Ship& ship)
 {
 	for (int j = 1; j < ship.GetLength(); ++j)
 	{
@@ -277,4 +222,113 @@ bool Board::isTileOccupied(Ship& ship)
 			}
 		}
 	}
+
+	return false;
+}
+
+void Board::PlaceShip(const Ship& ship)
+{
+	for (int j = 1; j < ship.GetLength(); ++j)
+	{
+		if (ship.orientation == Ship::Orientation::Vertical)
+		{
+			brd[ship.location.x][ship.location.y] = '#';
+			brd[ship.location.x + j][ship.location.y] = '#';
+		}
+		else if (ship.orientation == Ship::Orientation::Horizontal)
+		{
+			brd[ship.location.x][ship.location.y] = '#';
+			brd[ship.location.x][ship.location.y + j] = '#';
+		}
+		else if (ship.orientation == Ship::Orientation::DiagonalLeft)
+		{
+			brd[ship.location.x][ship.location.y] = '#';
+			brd[ship.location.x + j][ship.location.y + j] = '#';
+		}
+		else if (ship.orientation == Ship::Orientation::DiagonalRight)
+		{
+			brd[ship.location.x][ship.location.y] = '#';
+			brd[ship.location.x + j][ship.location.y - j] = '#';
+		}
+	}
+}
+
+bool Board::VerifyShipPlacement(const Ship& ship)
+{
+	char input{};
+	std::cout << "Place your ship here?(Y/N)";
+	std::cin >> input;
+
+	do
+	{
+		if (input == 'N' || input == 'n')
+		{
+			for (int j = 1; j < ship.GetLength(); ++j)
+			{
+				switch (ship.orientation)
+				{
+				case Ship::Orientation::Horizontal:
+					brd[ship.location.x][ship.location.y] = '.';
+					brd[ship.location.x][ship.location.y + j] = '.';
+					break;
+				case Ship::Orientation::Vertical:
+					brd[ship.location.x][ship.location.y] = '.';
+					brd[ship.location.x + j][ship.location.y] = '.';
+					break;
+				case Ship::Orientation::DiagonalLeft:
+					brd[ship.location.x][ship.location.y] = '.';
+					brd[ship.location.x + j][ship.location.y + j] = '.';
+					break;
+				case Ship::Orientation::DiagonalRight:
+					brd[ship.location.x][ship.location.y] = '.';
+					brd[ship.location.x + j][ship.location.y - j] = '.';
+				}
+			}
+			return false;
+		}
+		else if (input == 'Y' || input == 'y')
+		{
+			return true;
+		}
+		else
+		{
+			std::cout << "Invalid input. Try again" << std::endl;
+		}
+
+	} while (input != 'Y' && input != 'y' && input != 'N' && input != 'n');
+
+	return true;
+}
+
+bool Board::isShipHit(const Location& HitLocation)
+{
+	if (brd[HitLocation.x][HitLocation.y] == '#')
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool Board::isAllShipsDestroyed()
+{
+	for (size_t i = 0; i < size; ++i)
+	{
+		for (size_t j = 0; j < size; ++j)
+		{
+			if (brd[i][j] == '#')
+				return false;
+		}
+	}
+	return true;
+}
+
+void Board::DrawSymbolOnBoard(const Location& location, char symbol)
+{
+	brd[location.x][location.y] = symbol;
+}
+
+char Board::GetSymbolFromBoard(const Location& location)
+{
+	return brd[location.x][location.y];
 }

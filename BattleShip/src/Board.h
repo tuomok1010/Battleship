@@ -15,11 +15,17 @@ public:
     void Draw();
     void PlaceShips();
 	void InputShipCoordinates(Ship& ship);
-	bool isTileOccupied(Ship& ship);
-    void ProcessHits();
+	bool AreTilesOccupied(const Ship& ship);
+	void PlaceShip(const Ship& ship);
+	bool VerifyShipPlacement(const Ship& ship);
+    bool isShipHit(const Location& HitLocation);
+	bool isAllShipsDestroyed();
+	void DrawSymbolOnBoard(const Location& location, char symbol);
+	char GetSymbolFromBoard(const Location& location);
 
+	const static std::unordered_map<char, int> coords;
 private:
-    static constexpr int size{10};
+    static constexpr unsigned int size{10};
 	std::array<std::array<char, size>, size> brd{};
 	char shipSymbol{ '#' };
     Player& player;

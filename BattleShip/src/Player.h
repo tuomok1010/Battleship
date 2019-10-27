@@ -19,7 +19,11 @@ public:
 		Ships.emplace_back(shipTypes.at("Patrol Boat"));
 	}
 
+	inline std::string GetName() const { return name; }
+	inline void SetName(std::string name) { this->name = name; }
+
 	std::vector<Ship> Ships;
+	bool isMyTurn{ false };
 
 private:
     std::string name{};

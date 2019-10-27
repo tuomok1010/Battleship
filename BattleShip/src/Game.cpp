@@ -56,80 +56,99 @@ void Game::RunGame()
 
 		if (player1.isMyTurn)
 		{
-			std::cout << "It is " << player1.GetName() << "'s turn to shoot! " << player2.GetName() << " please look away from the screen.\n";
-			std::cout << "Press enter to continue\n";
-			std::cin.ignore();
-			std::cin.get();
-			
-			while (player1.isMyTurn)
-			{
-				CLEARSCRN;
-
-				std::cout << "\n\n\n============ ENEMY BOARD ============\n\n";
-				player1Hits.Draw();
-				std::cout << "X = Miss\tO = Hit\n";
-
-				std::cout << "\n\n\n============ YOUR BOARD ============\n\n";
-				brdP1.Draw();
-
-				int x{};
-				char y{};
-				Location hitLocation{};
-				std::cout << "Give your artillery crew the coordinates to fire at!(example: \"H 4\")\n";
-				std::cin >> y >> x;
-
-				//hitLocation = { x - 1, Board::coords.at(y) };
-				hitLocation.x = x - 1;
-				hitLocation.y = Board::coords.at(y);
-
-				if (brdP2.GetSymbolFromBoard(hitLocation) == '#')
-				{
-					player1Hits.DrawSymbolOnBoard(hitLocation, 'O');
-					brdP2.DrawSymbolOnBoard(hitLocation, 'O');
-					player1.isMyTurn = true;
-
-					std::cout << "You hit an enemy ship! You may fire again! 1. Understood 2. Huh?";
-				}
-				else if (brdP2.GetSymbolFromBoard(hitLocation) == 'O')
-				{
-					std::cout << "Error! You have already fired at those coordinates. Please try again. 1. Understood 2. Huh?";
-				}
-				else
-				{			
-					player1Hits.DrawSymbolOnBoard(hitLocation, 'X');
-					brdP2.DrawSymbolOnBoard(hitLocation, 'X');
-					player1.isMyTurn = false;
-					player2.isMyTurn = true;
-
-					std::cout << "You miss! 1. Understood 2. Huh?";
-				}
-
-				char input{};
-				do
-				{
-					std::cin >> input;
-				} while (input != '1' && input != '2');
-
-				CLEARSCRN;
-				std::cout << "\n\n\n============ ENEMY BOARD ============\n\n";
-				player1Hits.Draw();
-				std::cout << "X = Miss\tO = Hit\n";
-
-				std::cout << "\n\n\n============ YOUR BOARD ============\n\n";
-				brdP1.Draw();
-			}
+			ProcessPlayerTurn(player1, brdP1, player1Hits, player2, brdP2);
 		}
 		else if (player2.isMyTurn)
 		{
-			std::cout << "It is " << player2.GetName() << "'s turn to shoot! " << player1.GetName() << " please look away from the screen.\n";
-			std::cout << "Press enter to continue" << std::flush;
-			std::cin.ignore();
-			std::cin.get();
+			ProcessPlayerTurn(player2, brdP2, player2Hits, player1, brdP1);
+		}
+	}
+}
 
-			while (player2.isMyTurn)
-			{
+void Game::ProcessPlayerTurn(Player& playerInTurn, Board& brdPlayerInTurn, Board& playerInTurnHits, Player& otherPlayer, Board& brdOtherPlayer)
+{
+	std::cout << "It is " << playerInTurn.GetName() << "'s turn to shoot! " << otherPlayer.GetName() << " please look away from the screen.\n";
+	std::cout << "Press enter to continue\n";
+	std::cin.ignore();
+	std::cin.get();
 
-			}
+	while (playerInTurn.isMyTurn)
+	{
+		CLEARSCRN;
+
+		std::cout << "\n\n\n============ ENEMY BOARD ============\n\n";
+		playerInTurnHits.Draw();
+		std::cout << "X = Miss\tO = Hit\n";
+
+		std::cout << "\n\n\n============ YOUR BOARD ============\n\n";
+		brdPlayerInTurn.Draw();
+
+		int x{};
+		char y{};
+		Location hitLocation{};
+		std::cout << "Give your artillery crew the coordinates to fire at!(example: \"H 4\")\n";
+		std::cin >> y >> x;
+
+		//hitLocation = { x - 1, Board::coords.at(y) };
+		hitLocation.x = x - 1;
+		hitLocation.y = Board::coords.at(y);
+
+		if (brdOtherPlayer.GetSymbolFromBoard(hitLocation) == '#')
+		{
+			playerInTurnHits.DrawSymbolOnBoard(hitLocation, 'O');
+			brdOtherPlayer.DrawSymbolOnBoard(hitLocation, 'O');
+			playerInTurn.isMyTurn = true;
+
+			CLEARSCRN;
+			std::cout << "\n\n\n============ ENEMY BOARD ============\n\n";
+			playerInTurnHits.Draw();
+			std::cout << "X = Miss\tO = Hit\n";
+
+			std::cout << "\n\n\n============ YOUR BOARD ============\n\n";
+			brdPlayerInTurn.Draw();
+
+			std::cout << "You hit an enemy ship! You may fire again! 1. Understood 2. Huh?";
+		}
+		else if (brdOtherPlayer.GetSymbolFromBoard(hitLocation) == 'O')
+		{
+			CLEARSCRN;
+			std::cout << "\n\n\n============ ENEMY BOARD ============\n\n";
+			playerInTurnHits.Draw();
+			std::cout << "X = Miss\tO = Hit\n";
+
+			std::cout << "\n\n\n============ YOUR BOARD ============\n\n";
+			brdPlayerInTurn.Draw();
+
+			std::cout << "Error! You have already fired at those coordinates. Please try again. 1. Understood 2. Huh?";
+		}
+		else
+		{
+			playerInTurnHits.DrawSymbolOnBoard(hitLocation, 'X');
+			brdOtherPlayer.DrawSymbolOnBoard(hitLocation, 'X');
+			playerInTurn.isMyTurn = false;
+			otherPlayer.isMyTurn = true;
+
+			CLEARSCRN;
+			std::cout << "\n\n\n============ ENEMY BOARD ============\n\n";
+			playerInTurnHits.Draw();
+			std::cout << "X = Miss\tO = Hit\n";
+
+			std::cout << "\n\n\n============ YOUR BOARD ============\n\n";
+			brdPlayerInTurn.Draw();
+
+			std::cout << "You miss! 1. Understood 2. Huh?";
+		}
+
+		char input{};
+		do
+		{
+			std::cin >> input;
+		} while (input != '1' && input != '2');
+
+		if (brdOtherPlayer.isAllShipsDestroyed())
+		{
+			std::cout << playerInTurn.GetName() << " has won the game! Congrats!" << std::endl;
+			break;
 		}
 	}
 }

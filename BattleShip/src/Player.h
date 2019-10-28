@@ -24,10 +24,10 @@ public:
 
 	std::vector<Ship> Ships;
 	bool isMyTurn{ false };
+    int score{};
 
 private:
     std::string name{};
-    int score{};
 	const std::unordered_map<std::string, Ship> shipTypes
 	{
 		{"Carrier", Ship(5, "Carrier")},

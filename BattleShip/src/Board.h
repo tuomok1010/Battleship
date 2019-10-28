@@ -22,6 +22,7 @@ public:
 	bool isAllShipsDestroyed();
 	void DrawSymbolOnBoard(const Location& location, char symbol);
 	char GetSymbolFromBoard(const Location& location);
+	void ClearBoard();
 
 	const static std::unordered_map<char, int> coords;
 private:

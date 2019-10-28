@@ -332,3 +332,10 @@ char Board::GetSymbolFromBoard(const Location& location)
 {
 	return brd[location.x][location.y];
 }
+
+void Board::ClearBoard()
+{
+	for (size_t i = 0; i < size; ++i)
+		for (size_t j = 0; j < size; ++j)
+			brd[i][j] = '.';
+}

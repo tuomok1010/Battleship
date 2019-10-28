@@ -11,7 +11,7 @@ public:
 	void InputPlayerInfo();
 	void StartGame();
 	void RunGame();
-	void ProcessPlayerTurn(Player& playerInTurn, Board& brdPlayerInTurn, Board& playerInTurnHits, Player& otherPlayer, Board& brdOtherPlayer);
+	bool ProcessPlayerTurn(Player& playerInTurn, Board& brdPlayerInTurn, Board& playerInTurnHits, Player& otherPlayer, Board& brdOtherPlayer);
 
     Player player1;
     Player player2;
@@ -21,6 +21,8 @@ private:
 
 	Board player1Hits;
 	Board player2Hits;
+
+	bool runGame{ true };
 };
 
 #endif
